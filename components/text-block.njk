@@ -1,0 +1,24 @@
+[% from "components/button.njk" import button %]
+[# text-block: heading plus body copy, with an optional button. Use it with call:
+
+     [% call textBlock(heading="Hello {{ first_name|default:'there' }}", ctaLabel="Shop now", ctaHref="{{ url }}") %]
+       <p>Body copy here.</p>
+     [% endcall %]
+
+   Compatibility
+   - Fonts are web-safe stacks from the brand tokens, so there is no webfont fallback problem.
+   - Dark mode: text and background swap through dm-* classes where prefers-color-scheme is honored.
+   - Outlook desktop: line-height on <p> is honored, but margins between paragraphs can differ slightly. #]
+[% macro textBlock(heading=none, ctaLabel=none, ctaHref=none) %]
+<mj-section css-class="dm-surface" padding="24px 24px 8px 24px">
+  <mj-column>
+    [% if heading %]
+    <mj-text css-class="dm-text" font-family="[[ t.fonts.heading ]]" font-size="[[ t.type.h2Size ]]" font-weight="bold" line-height="1.3" padding="0 0 12px 0">[[ heading ]]</mj-text>
+    [% endif %]
+    <mj-text css-class="dm-text" padding="0">[[ caller() ]]</mj-text>
+    [% if ctaLabel and ctaHref %]
+    [[ button(ctaLabel, ctaHref, "left") ]]
+    [% endif %]
+  </mj-column>
+</mj-section>
+[% endmacro %]
