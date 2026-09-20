@@ -4,77 +4,62 @@ _Last updated: 2026-09-20_
 
 ## Status
 
-**Step 2 of 5 done: proposal made, waiting for Evan's OK. No code has been written yet.**
+**Steps 3 and 4 of 5 done. Steps 3 and 4 are built and tested but not yet committed.**
 
 Kickoff order:
 1. ~~Ask questions~~ done
-2. ~~Propose folder structure and build approach~~ done, **awaiting approval**
-3. Set up project and the first token file (next)
-4. Build header, hero, button, text-block, footer, then one sample layout end to end
-5. Add other brands and more components
+2. ~~Propose folder structure and build approach~~ done, approved by Evan
+3. ~~Set up project and the first token file~~ done
+4. ~~Build header, hero, button, text-block, footer, then one sample layout end to end~~ done (`flows/welcome.mjml`)
+5. Add other brands and more components (next)
 
-## Answers from Evan
+## What exists
 
-- **First brand:** placeholder only (neutral brand, no real brand yet)
-- **Brand assets:** none yet, so use marked placeholders (neutral palette, web-safe fonts, placeholder logo). Don't invent brand values.
-- **Klaviyo usage:** both custom HTML templates and the hybrid editor
-- **Existing `email-designs` repo:** plain `mjml` CLI, no custom build to mirror
-- **Delivery to Klaviyo:** assumed manual paste from `dist/` (not explicitly confirmed). API upload is deferred.
+- `package.json` with `mjml` 5.4.1 and `nunjucks` 3.2.4 (MJML 5 is async, the build awaits it)
+- `tokens/placeholder.json`: neutral palette, web-safe fonts, placehold.co images, dark-mode values
+- `layouts/base.mjml`: head, `color-scheme` meta, dark-mode CSS (only when a brand has `dark` tokens)
+- `components/`: header, hero, button, text-block, footer, each with a compatibility comment
+- `flows/welcome.mjml`: reference email using all five components
+- `scripts/`: `build.js`, `preview.js`, `lib/` (tokens, render, checks, paths)
+- `tests/`: 17 tests, all passing. Includes the Klaviyo-syntax fixture.
+- `README.md` (usage, compatibility table) and `CLAUDE.md` (conventions)
 
-## Proposed approach (pending approval)
+## Decisions made while building
 
-**Two-stage build: Nunjucks, then MJML, then checks.**
-- Nunjucks handles composition and token injection. Components are macros and layouts use `extends`/blocks.
-- `mjml` compiles the result to HTML.
-- Checks run on the output.
+- **Output path is `dist/<brand>/<flows|campaigns>/<name>.html`**, one level deeper than proposed, so a flow and a campaign can share a name.
+- **MJML drops bare Klaviyo tags with no error, even at `strict`.** Confirmed by experiment. So the wrap-in-`<mj-raw>` rule alone is not enough, since nobody sees the failure. The build now compares Klaviyo tags before and after MJML and fails on any missing one (`findDroppedTags` in `scripts/lib/checks.js`).
+- **Klaviyo footer tags verified against Klaviyo's help center:** `{% unsubscribe_link %}` in an `href` (bare `{% unsubscribe %}` breaks in link fields), `{% manage_preferences_link %}`, `{{ organization.full_address }}`. Build checks enforce the unsubscribe tag, the address, and no bare `{% unsubscribe %}` in an `href`.
+- **`dark` tokens are optional as a group**, complete if present.
+- **Preview** treats placeholder-token problems as a warning banner, so an unfinished brand can still be previewed. Build treats them as errors.
+- Output checks also warn on size over 102 KB (Gmail clipping) and images with no alt.
 
-**Nunjucks uses custom delimiters** (`[[ ]]` for variables, `[% %]` for tags). Klaviyo uses `{{ }}` and `{% %}`, so any `{{ }}` or `{% %}` in a source file is a Klaviyo tag and must pass through untouched.
+## Verified
 
-**MJML gotcha:** Klaviyo `{% if %}` blocks between `mj-*` elements get mangled by the MJML parser. Wrap them in `<mj-raw>`. Add a fixture test that compiles a file full of Klaviyo syntax and asserts the tags survive.
+- `npm test`: 17 of 17 pass
+- `npm run build`: placeholder builds, all Klaviyo tags present in output, VML hero fallback present, dark-mode meta and CSS present
+- Unfinished brand (copy of placeholder) fails the build with exit 1 and a clear list
+- Bare `{% if %}` in a flow fails the build with exit 1
+- Preview server serves the index, an email with the reload script, and a 404
 
-### Structure
+## Not verified
 
-```
-tokens/
-  placeholder.json         # neutral palette, web-safe fonts, placehold.co logo
-  (mc.json, sanecotec.json, agency.json added later)
-components/                # Nunjucks macros emitting MJML
-layouts/                   # base.mjml (head, dark-mode CSS, body wrapper) + skeletons
-flows/                     # welcome.mjml etc., extend a layout
-campaigns/                 # separate from flows
-scripts/                   # build.js, preview.js, checks
-dist/<brand>/<email>.html  # gitignored
-```
-
-### Decisions
-
-- **No token inheritance or merging.** Every brand must define every key, validated against `placeholder.json`. This stops defaults silently filling gaps.
-- **Placeholder check:** each token file has `"_placeholders": ["colors.primary", "logo.url", ...]`. Building any brand other than `placeholder` fails while that list is non-empty. It also flags `placehold.co` and `example.com` URLs as a backstop against drift.
-- **Dependencies:** `mjml` and `nunjucks` only. The preview server is a small built-in Node script (`http` + `fs.watch` + auto-reload).
-- **Scripts:** `npm run build`, `npm run build:brand -- <brand>`, `npm run preview -- <brand> <email>`. Node scripts, not shell, because the machine is Windows.
-- **Dark mode:** `color-scheme` meta plus `prefers-color-scheme` CSS, with optional dark tokens (colors and a dark logo). Outlook desktop ignores it and the Gmail apps only partially honor it. Document this per component.
-- **Compatibility notes:** each component gets a header comment on its known Outlook, Gmail and dark-mode limits, plus a summary table in the README. Examples: rounded buttons render square in Outlook desktop, and the hero background needs a VML fallback.
-- **Klaviyo footer and unsubscribe tags:** must be verified against Klaviyo's current docs before the footer is written. Don't rely on memory.
-- **Hybrid editor:** full emails go in as custom HTML first. Exporting body-only component snippets can be added later without restructuring.
-- **`dist/` is gitignored** because it's reproducible.
+- **No real email client testing.** Nothing has been opened in Outlook, Gmail or Apple Mail, and the dark-mode CSS has not been seen in a client. The `dm-*` selectors were written against MJML's output structure but only checked by reading the HTML.
+- **Never pasted into Klaviyo.** The delivery flow (manual paste of custom HTML) is still an assumption.
+- The Klaviyo docs check used search and page summaries, not a Klaviyo account.
 
 ## Open items for Evan
 
-- OK the structure and approach above, or request changes. Two things to confirm in particular:
-  - `dist/` gitignored or committed
-  - JSON token format (no comments allowed in token files)
-- Later: per-brand flow content (copy and images) needs a home, probably `content/<brand>/<email>.json`. Not needed yet.
+- Commit this work? Nothing from steps 3 and 4 is committed yet.
+- Per-brand flow content (copy and images) needs a home, probably `content/<brand>/<email>.json`. Not needed until there is a second brand.
+
+## Next session
+
+1. Real brand token files (`mc.json`, `sanecotec.json`, `agency.json`) once Evan has assets. Until then they don't exist, on purpose.
+2. Test `dist/placeholder/flows/welcome.html` in a real Klaviyo custom HTML template and in Outlook, Gmail and Apple Mail, light and dark. Fix any `dm-*` selector that doesn't hit.
+3. More components: product grid, two-column, divider, social row, and a campaign layout.
+4. Decide on the content home once a second brand exists.
 
 ## Environment
 
 - Node v23.11.0, npm 11.12.1
 - Windows 11, PowerShell primary
-- Repo had no commits before this file. Only `progress.md` exists.
-
-## Next session
-
-1. Get Evan's OK, or adjust the proposal.
-2. Fetch Klaviyo's current docs for the required footer and unsubscribe tags.
-3. Scaffold: `package.json`, `.gitignore`, `tokens/placeholder.json`, `scripts/build.js`, the placeholder check and the Klaviyo-syntax fixture test.
-4. Build the components (header, hero, button, text-block, footer) and one sample layout.
-5. Write the README and `CLAUDE.md`.
