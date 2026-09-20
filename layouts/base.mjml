@@ -10,11 +10,32 @@
     <mj-preview>[% block preview %][% endblock %]</mj-preview>
     <mj-attributes>
       <mj-all font-family="[[ t.fonts.body ]]" />
-      <mj-text font-size="[[ t.type.bodySize ]]" line-height="[[ t.type.bodyLineHeight ]]" color="[[ t.colors.text ]]" />
+      <mj-text [[ typo('body') ]] />
       <mj-section background-color="[[ t.colors.surface ]]" />
     </mj-attributes>
     <mj-style>
       a { color: [[ t.colors.link ]]; }
+      /* Responsive visibility (hideOnMobile / hideOnDesktop settings). Outlook desktop ignores media queries,
+         so hide-desktop content is hidden there and hide-mobile content always shows. */
+      .hide-desktop { display: none !important; max-height: 0 !important; overflow: hidden !important; }
+      @media only screen and (max-width: 480px) {
+        .hide-mobile { display: none !important; max-height: 0 !important; overflow: hidden !important; }
+        .hide-desktop { display: block !important; max-height: none !important; overflow: visible !important; }
+      }
+      /* Shadows (shadow setting on sections and wrappers). Ignored by Outlook desktop and some other clients. */
+      .shadow-small { box-shadow: [[ t.shadow.small ]]; }
+      .shadow-medium { box-shadow: [[ t.shadow.medium ]]; }
+      .shadow-large { box-shadow: [[ t.shadow.large ]]; }
+      /* Mobile column counts (mobileColumns: 2 puts two columns side by side) and mobile alignment. */
+      @media only screen and (max-width: 479px) {
+        .m-col-2 { width: 50% !important; max-width: 50% !important; }
+        .m-center, .m-center div, .m-center p, .m-center td, .m-center h1, .m-center h2, .m-center h3, .m-center h4 { text-align: center !important; }
+        .m-center table { margin-left: auto !important; margin-right: auto !important; }
+        .m-right, .m-right div, .m-right p, .m-right td, .m-right h1, .m-right h2, .m-right h3, .m-right h4 { text-align: right !important; }
+        .m-right table { margin-left: auto !important; margin-right: 0 !important; }
+        .m-left, .m-left div, .m-left p, .m-left td, .m-left h1, .m-left h2, .m-left h3, .m-left h4 { text-align: left !important; }
+        .m-left table { margin-left: 0 !important; margin-right: auto !important; }
+      }
 [% if t.dark %]
       .logo-dark { display: none !important; }
       @media (prefers-color-scheme: dark) {
@@ -23,8 +44,9 @@
         .dm-text, .dm-text div, .dm-text p, .dm-text h1, .dm-text h2 { color: [[ t.dark.colors.text ]] !important; }
         .dm-muted, .dm-muted div, .dm-muted p { color: [[ t.dark.colors.mutedText ]] !important; }
         .dm-text a, .dm-muted a { color: [[ t.dark.colors.link ]] !important; }
-        .dm-border { border-color: [[ t.dark.colors.border ]] !important; }
+        .dm-border, .dm-border p { border-color: [[ t.dark.colors.border ]] !important; }
         .dm-button a, .dm-button td { background-color: [[ t.dark.colors.primary ]] !important; color: [[ t.dark.colors.primaryText ]] !important; }
+        .dm-button-outline a, .dm-button-outline td { background-color: transparent !important; color: [[ t.dark.colors.primary ]] !important; border-color: [[ t.dark.colors.primary ]] !important; }
         .logo-light { display: none !important; }
         .logo-dark { display: block !important; }
       }

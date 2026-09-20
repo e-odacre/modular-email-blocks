@@ -58,6 +58,19 @@ function validateTokens(brand, tokens, reference) {
     }
   }
 
+  // Typography levels point at a font role (fonts.<role>) and a color role (colors.<role>).
+  if (tokens.type && typeof tokens.type === 'object') {
+    for (const [level, spec] of Object.entries(tokens.type)) {
+      if (!spec || typeof spec !== 'object') continue;
+      if (typeof spec.font === 'string' && !(tokens.fonts && spec.font in tokens.fonts)) {
+        errors.push(`token "type.${level}.font" is "${spec.font}", which is not a key of fonts (${Object.keys(tokens.fonts || {}).join(', ')})`);
+      }
+      if (typeof spec.color === 'string' && !(tokens.colors && spec.color in tokens.colors)) {
+        errors.push(`token "type.${level}.color" is "${spec.color}", which is not a key of colors`);
+      }
+    }
+  }
+
   const placeholders = tokens._placeholders;
   if (!Array.isArray(placeholders)) {
     errors.push('"_placeholders" must be an array (use [] once every value is real)');
@@ -87,4 +100,4 @@ function loadBrand(brand) {
   return { tokens, ...validateTokens(brand, tokens, reference) };
 }
 
-module.exports = { REFERENCE_BRAND, PLACEHOLDER_URL, loadTokenFile, loadBrand, validateTokens, leafPaths };
+module.exports = { REFERENCE_BRAND, PLACEHOLDER_URL, loadTokenFile, loadBrand, validateTokens, leafPaths, getPath };

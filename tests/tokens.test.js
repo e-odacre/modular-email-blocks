@@ -73,6 +73,27 @@ test('a "_placeholders" entry that names a non-existent token is an error', () =
   assert.ok(validateTokens('placeholder', brand, reference).errors.some((e) => e.includes('colors.nope')));
 });
 
+test('type levels must point at real font and color roles', () => {
+  const brand = clone();
+  brand.type.h1.font = 'display';
+  brand.type.h2.color = 'neon';
+  const { errors } = validateTokens('placeholder', brand, reference);
+  assert.ok(errors.some((e) => e.includes('type.h1.font') && e.includes('not a key of fonts')));
+  assert.ok(errors.some((e) => e.includes('type.h2.color') && e.includes('not a key of colors')));
+});
+
+test('every typography level, spacing step, radius and shadow from the design system is defined', () => {
+  const levels = ['display', 'h1', 'h2', 'h3', 'h4', 'body', 'bodyLarge', 'bodySmall', 'caption', 'eyebrow', 'price', 'salePrice', 'button'];
+  for (const l of levels) assert.ok(reference.type[l], `type.${l}`);
+  for (const k of ['xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl']) assert.ok(reference.spacing[k], `spacing.${k}`);
+  for (const k of ['none', 'small', 'medium', 'large', 'pill']) assert.ok(reference.radius[k], `radius.${k}`);
+  for (const k of ['none', 'small', 'medium', 'large']) assert.ok(reference.shadow[k], `shadow.${k}`);
+  for (const k of ['primary', 'secondary', 'accent', 'background', 'surface', 'text', 'mutedText', 'border', 'success', 'warning', 'error', 'white', 'black']) {
+    assert.ok(reference.colors[k], `colors.${k}`);
+    assert.ok(reference.dark.colors[k], `dark.colors.${k}`);
+  }
+});
+
 test('tokens with a double quote are rejected because they end up in MJML attributes', () => {
   const brand = clone();
   brand.fonts.body = '"Helvetica Neue", Arial';

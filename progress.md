@@ -4,62 +4,57 @@ _Last updated: 2026-09-20_
 
 ## Status
 
-**Steps 3 and 4 of 5 done. Steps 3 and 4 are built and tested but not yet committed.**
+The component library from the brief is built and tested, but **uncommitted** (working tree on `main`, last commit `965b79f`). Only the placeholder brand exists, on purpose.
 
-Kickoff order:
-1. ~~Ask questions~~ done
-2. ~~Propose folder structure and build approach~~ done, approved by Evan
-3. ~~Set up project and the first token file~~ done
-4. ~~Build header, hero, button, text-block, footer, then one sample layout end to end~~ done (`flows/welcome.mjml`)
-5. Add other brands and more components (next)
+- `npm test`: 279 tests, all passing
+- `npm run build`: builds `flows/welcome.mjml` (recipe-driven) and `examples/summer-collection.mjml` for the placeholder brand
+- `npm run build:themes`: every email in all 13 themes, all pass
+- `npm run docs:check`: generated docs and the README compatibility table are current
+- Dependencies are still only `mjml` and `nunjucks`
+
+See `README.md` for usage, `docs/` for the guides (start at `docs/README.md`), `docs/coverage.md` for where each item of the original brief lives, and `CLAUDE.md` for the rules that are easy to get wrong.
 
 ## What exists
 
-- `package.json` with `mjml` 5.4.1 and `nunjucks` 3.2.4 (MJML 5 is async, the build awaits it)
-- `tokens/placeholder.json`: neutral palette, web-safe fonts, placehold.co images, dark-mode values
-- `layouts/base.mjml`: head, `color-scheme` meta, dark-mode CSS (only when a brand has `dark` tokens)
-- `components/`: header, hero, button, text-block, footer, each with a compatibility comment
-- `flows/welcome.mjml`: reference email using all five components
-- `scripts/`: `build.js`, `preview.js`, `lib/` (tokens, render, checks, paths)
-- `tests/`: 17 tests, all passing. Includes the Klaviyo-syntax fixture.
-- `README.md` (usage, compatibility table) and `CLAUDE.md` (conventions)
+- **116 components, 369 variants** in 16 categories: layout 12, content 14, hero 5, commerce 6, promotional 13, social-proof 4, features 6, editorial 8, saas 10, events 3, faq 1, comparison 6, stats 3, logos 1, decorative 11, email 13. Each is a `.njk` template plus a `.meta.js` (fields, settings, variants, responsive, preview data, compat).
+- **13 themes** (style-only, complete, no inheritance): minimal, luxury, editorial, bold, playful, ecommerce, saas, wellness, fashion, christmas, black-friday, valentines, summer.
+- **11 sections and 12 recipes**: welcome, abandoned-cart, product-launch, sale, black-friday, newsletter, event, saas-feature-launch, post-purchase, review-request, win-back, back-in-stock.
+- **Design tokens** expanded: 15 colors, 13 typography levels, spacing, radius, shadow scales.
+- **Remix**: `npm run remix` (theme, variant and setting overrides), `remixNodes()` in `scripts/lib/remix.js`.
+- **Variables registry** `variables/klaviyo.json`, each tag marked verified (with source) or not.
+- **Tooling**: preview gallery with theme switcher (`/components`, `/recipes`), `new:component`, `new:theme`, docs generator.
 
 ## Decisions made while building
 
-- **Output path is `dist/<brand>/<flows|campaigns>/<name>.html`**, one level deeper than proposed, so a flow and a campaign can share a name.
-- **MJML drops bare Klaviyo tags with no error, even at `strict`.** Confirmed by experiment. So the wrap-in-`<mj-raw>` rule alone is not enough, since nobody sees the failure. The build now compares Klaviyo tags before and after MJML and fails on any missing one (`findDroppedTags` in `scripts/lib/checks.js`).
-- **Klaviyo footer tags verified against Klaviyo's help center:** `{% unsubscribe_link %}` in an `href` (bare `{% unsubscribe %}` breaks in link fields), `{% manage_preferences_link %}`, `{{ organization.full_address }}`. Build checks enforce the unsubscribe tag, the address, and no bare `{% unsubscribe %}` in an `href`.
-- **`dark` tokens are optional as a group**, complete if present.
-- **Preview** treats placeholder-token problems as a warning banner, so an unfinished brand can still be previewed. Build treats them as errors.
-- Output checks also warn on size over 102 KB (Gmail clipping) and images with no alt.
+- **Themes are style-only.** Chosen with Evan: they override type/spacing/radius/shadow scales and pick brand color roles, but never carry colors or fonts. Seasonal themes therefore differ by decoration and emphasis, not palette.
+- **Variants are setting overrides**, so switching variant never changes data or structure. Items the brief lists separately but that share a structure are variants (reverse-split hero, 2/3/4-feature, trusted-by/press logos, pill/tag badges), see `docs/coverage.md`.
+- **Recipes and sections produce nodes, not markup**, which is what makes remix possible.
+- **`examples/`** is built for the placeholder brand only, because it uses placeholder images and example.com links that the build gate rejects for real brands.
+- **Klaviyo cart variables are platform dependent.** Klaviyo's own pages show two shapes (`item.product.title` and `item.title`). The registry uses the Shopify ones and says to copy exact names from the event preview. `cart.checkout_url` is unconfirmed and marked unverified.
+- Verified against Klaviyo's docs this session: `{% web_view_link %}`, `{% render_variable preview_text %}`, `{% coupon_code 'Name' %}`, `{% current_year %}`, `{% today %}` with `days_later`, `event.extra.line_items` for the cart loop.
 
-## Verified
+## Not verified yet
 
-- `npm test`: 17 of 17 pass
-- `npm run build`: placeholder builds, all Klaviyo tags present in output, VML hero fallback present, dark-mode meta and CSS present
-- Unfinished brand (copy of placeholder) fails the build with exit 1 and a clear list
-- Bare `{% if %}` in a flow fails the build with exit 1
-- Preview server serves the index, an email with the reload script, and a 404
+- **No real email client testing.** Nothing has been opened in Outlook, Gmail or Apple Mail. Every dark-mode `dm-*` selector, every mobile media-query behavior (`mobileColumns`, `mobileAlignment`, `hideOnMobile`, reversed columns) and the VML button and backgrounds were checked by reading generated HTML and MJML strict validation only. Layouts have not been looked at in a browser or client either.
+- **Never pasted into Klaviyo.** Delivery by manual paste of custom HTML from `dist/` is still an assumption.
+- Klaviyo tags were checked against help center pages, not a Klaviyo account.
+- Countdown and product carousel are static approximations, see `docs/limitations.md`.
+- `welcome` (85 KB) and `black-friday` (81 KB) recipes are near Gmail's ~102 KB clip with only preview content.
 
-## Not verified
+## Open items
 
-- **No real email client testing.** Nothing has been opened in Outlook, Gmail or Apple Mail, and the dark-mode CSS has not been seen in a client. The `dm-*` selectors were written against MJML's output structure but only checked by reading the HTML.
-- **Never pasted into Klaviyo.** The delivery flow (manual paste of custom HTML) is still an assumption.
-- The Klaviyo docs check used search and page summaries, not a Klaviyo account.
+- Commit this work. Nothing from this session is committed.
+- Per-brand flow content (copy and images) needs a home, probably `content/<brand>/<email>.json`. Recipes take data, so a JSON file per email fits. Not needed until there is a second brand.
 
-## Open items for Evan
+## Next
 
-- Commit this work? Nothing from steps 3 and 4 is committed yet.
-- Per-brand flow content (copy and images) needs a home, probably `content/<brand>/<email>.json`. Not needed until there is a second brand.
-
-## Next session
-
-1. Real brand token files (`mc.json`, `sanecotec.json`, `agency.json`) once Evan has assets. Until then they don't exist, on purpose.
-2. Test `dist/placeholder/flows/welcome.html` in a real Klaviyo custom HTML template and in Outlook, Gmail and Apple Mail, light and dark. Fix any `dm-*` selector that doesn't hit.
-3. More components: product grid, two-column, divider, social row, and a campaign layout.
-4. Decide on the content home once a second brand exists.
+1. Paste `dist/placeholder/examples/summer-collection.html` and `dist/placeholder/flows/welcome.html` into a Klaviyo custom HTML template and send tests to Gmail, Outlook and Apple Mail, light and dark. Fix any `dm-*` selector or mobile behavior that doesn't take, and correct the `compat` notes.
+2. Look at the gallery (`npm run preview`, `/components`) and the themes in a browser: spacing and proportions were never reviewed by eye.
+3. Real brand token files (`mc.json`, `sanecotec.json`, `agency.json`) once Evan has assets. Empty `_placeholders` only when every value is real.
+4. Confirm the Klaviyo event variables against a real Started Checkout and Placed Order event, and mark them verified.
+5. Trim output size if real content pushes emails toward the Gmail clip (typography attributes are the main cost).
 
 ## Environment
 
-- Node v23.11.0, npm 11.12.1
+- Node v23.11.0, npm 11.12.1, `mjml` 5.4.1 (async), `nunjucks` 3.2.4
 - Windows 11, PowerShell primary
