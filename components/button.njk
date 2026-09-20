@@ -1,0 +1,11 @@
+[# button: bulletproof CTA button, usable inside any mj-column.
+
+   Compatibility
+   - Outlook desktop (Word engine): border-radius is ignored, so the button renders square.
+   - Dark mode: colors swap through the dm-button class where prefers-color-scheme is honored.
+     Elsewhere it keeps its light colors, which is fine because the button carries its own background.
+   - The href can be a Klaviyo tag such as {{ url }}. Never put the bare {% unsubscribe %} tag in an href,
+     use {% unsubscribe_link %}. #]
+[% macro button(label, href, align="center") %]
+<mj-button css-class="dm-button" href="[[ href ]]" align="[[ align ]]" background-color="[[ t.colors.primary ]]" color="[[ t.colors.primaryText ]]" border-radius="[[ t.layout.radius ]]" font-family="[[ t.fonts.heading ]]" font-size="[[ t.type.bodySize ]]" font-weight="bold" inner-padding="14px 28px" padding="16px 24px">[[ label ]]</mj-button>
+[% endmacro %]
