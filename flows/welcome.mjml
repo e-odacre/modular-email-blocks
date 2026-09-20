@@ -1,0 +1,23 @@
+[% extends "layouts/base.mjml" %]
+[% from "components/header.njk" import header %]
+[% from "components/hero.njk" import hero %]
+[% from "components/text-block.njk" import textBlock %]
+[% from "components/footer.njk" import footer %]
+
+[% block preview %]Welcome, here is what to expect.[% endblock %]
+
+[% block body %]
+[[ header() ]]
+[[ hero("Welcome to " + t.brand.name, "Thanks for joining us. Here is what happens next.", "Start exploring", "{{ organization.url }}", t.images.hero) ]]
+
+[% call textBlock(heading="Hi {{ first_name|default:'there' }},") %]
+  <p>Placeholder copy. Replace this with the real welcome message once the brand voice is set.</p>
+  <p>Klaviyo tags like the greeting above pass through the build untouched.</p>
+[% endcall %]
+
+[% call textBlock(heading="What you can do next", ctaLabel="Browse the catalog", ctaHref="{{ organization.url }}") %]
+  <p>A second block, this one with a button, to show how blocks stack.</p>
+[% endcall %]
+
+[[ footer() ]]
+[% endblock %]
