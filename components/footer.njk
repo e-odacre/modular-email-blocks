@@ -1,0 +1,24 @@
+[# footer: address, unsubscribe and manage-preferences links.
+
+   Tags are Klaviyo's, verified against Klaviyo's help center (message personalization reference):
+   - {% unsubscribe_link %} and {% manage_preferences_link %} return only the URL, so they go inside an href.
+   - {{ organization.full_address }} comes from Settings > Organization > Contact information in Klaviyo.
+   - Klaviyo requires an unsubscribe tag and adds its own footer if it does not find one.
+
+   Compatibility
+   - Dark mode: text and link colors swap through dm-* classes where prefers-color-scheme is honored.
+   - Outlook desktop: renders fine, footer text is small (t.type.smallSize), keep it at 12px or above. #]
+[% macro footer() %]
+<mj-section css-class="dm-surface" padding="16px 24px 32px 24px">
+  <mj-column>
+    <mj-divider css-class="dm-border" border-width="1px" border-color="[[ t.colors.border ]]" padding="0 0 16px 0" />
+    <mj-text css-class="dm-muted" align="center" color="[[ t.colors.mutedText ]]" font-size="[[ t.type.smallSize ]]" line-height="1.6" padding="0">
+      [[ t.brand.name ]]<br>
+      {{ organization.full_address }}<br><br>
+      <a href="{% unsubscribe_link %}" style="color: [[ t.colors.mutedText ]]; text-decoration: underline;">Unsubscribe</a>
+      &nbsp;|&nbsp;
+      <a href="{% manage_preferences_link %}" style="color: [[ t.colors.mutedText ]]; text-decoration: underline;">Manage preferences</a>
+    </mj-text>
+  </mj-column>
+</mj-section>
+[% endmacro %]
