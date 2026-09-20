@@ -1,0 +1,69 @@
+{
+  "_placeholders": [
+    "brand.name",
+    "colors.primary",
+    "colors.primaryText",
+    "colors.background",
+    "colors.surface",
+    "colors.text",
+    "colors.mutedText",
+    "colors.border",
+    "colors.link",
+    "fonts.heading",
+    "fonts.body",
+    "logo.url",
+    "logo.alt",
+    "logo.href",
+    "images.hero"
+  ],
+  "brand": {
+    "name": "Placeholder Brand"
+  },
+  "colors": {
+    "primary": "#1F2937",
+    "primaryText": "#FFFFFF",
+    "background": "#F3F4F6",
+    "surface": "#FFFFFF",
+    "text": "#111827",
+    "mutedText": "#6B7280",
+    "border": "#E5E7EB",
+    "link": "#2563EB"
+  },
+  "fonts": {
+    "heading": "Helvetica, Arial, sans-serif",
+    "body": "Arial, Helvetica, sans-serif"
+  },
+  "type": {
+    "bodySize": "16px",
+    "bodyLineHeight": "1.5",
+    "h1Size": "30px",
+    "h2Size": "22px",
+    "smallSize": "12px"
+  },
+  "layout": {
+    "width": "600px",
+    "radius": "4px"
+  },
+  "logo": {
+    "url": "https://placehold.co/320x96/png?text=LOGO",
+    "alt": "Placeholder Brand",
+    "href": "https://example.com",
+    "width": "160px"
+  },
+  "images": {
+    "hero": "https://placehold.co/1200x600/png?text=HERO"
+  },
+  "dark": {
+    "colors": {
+      "primary": "#E5E7EB",
+      "primaryText": "#111827",
+      "background": "#0B0F14",
+      "surface": "#161B22",
+      "text": "#E5E7EB",
+      "mutedText": "#9CA3AF",
+      "border": "#30363D",
+      "link": "#93C5FD"
+    },
+    "logoUrl": "https://placehold.co/320x96/161B22/E5E7EB/png?text=LOGO"
+  }
+}
