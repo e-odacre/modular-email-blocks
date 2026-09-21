@@ -26,5 +26,5 @@ A modular email design system (MJML components, variants, themes, campaign recip
 - **Klaviyo tags must be checked against Klaviyo's docs**, not memory. Put them in `variables/klaviyo.json` with a source and `verified`, and ask for them with `v('name')`. `{% unsubscribe_link %}` goes in `href`, the bare `{% unsubscribe %}` does not.
 - **Every component gets a header comment** on Outlook, Gmail and dark-mode limits, a `compat` entry in its metadata (which generates its README row), realistic preview data (no lorem ipsum), and validation that fails loudly instead of producing a broken email. Images require alt text or `decorative: true`.
 - **Dark-mode classes come from `dm()` or `tone(s)`**, so a block with its own colors never flips.
-- **Do not claim more than was tested.** Nothing has been opened in Outlook, Gmail, Apple Mail or Klaviyo yet, keep `docs/limitations.md` honest.
+- **Do not claim more than was tested.** Only Gmail on the web (desktop, light mode) and one Klaviyo preview send have been checked, keep `docs/limitations.md` honest.
 - `dist/` is gitignored. `mjml` and `nunjucks` are the only dependencies, keep it that way unless there is a strong reason. Schema validation is hand-rolled for that reason.

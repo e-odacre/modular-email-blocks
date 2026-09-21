@@ -45,10 +45,11 @@ test('the hand-written guides exist and are linked from the docs index', () => {
   }
 });
 
-test('the docs never claim more than was tested: the limitations page says nothing was tried in real clients', () => {
+test('the docs never claim more than was tested: the limitations page says what was tried and what was not', () => {
   const page = read('docs/limitations.md');
-  assert.ok(/Nothing in this repository has been opened in Outlook, Gmail or Apple Mail/.test(page));
-  assert.ok(/never been pasted into a Klaviyo template/.test(page));
+  assert.ok(/Gmail on the web, on a desktop, in light mode/.test(page));
+  assert.ok(/Not yet seen: Apple Mail, Outlook desktop/.test(page));
+  assert.ok(/any dark mode/.test(page));
 });
 
 for (const level of ['content', 'section']) {
