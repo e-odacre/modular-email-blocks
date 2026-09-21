@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-A modular email design system (MJML components, variants, themes, campaign recipes) for Klaviyo. See `README.md` for usage, `docs/` for the guides and `progress.md` for current status.
+A modular email design system (MJML components, variants, themes, campaign recipes) for Klaviyo. See `README.md` for usage, `docs/` for the guides.
 
 ## Commands
 
