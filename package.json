@@ -8,6 +8,7 @@
     "build:brand": "node scripts/build.js",
     "build:themes": "node scripts/build.js --theme all",
     "preview": "node scripts/preview.js",
+    "gallery:brand": "node scripts/brand-gallery.js",
     "remix": "node scripts/remix.js",
     "docs": "node scripts/docs.js",
     "docs:check": "node scripts/docs.js --check",
