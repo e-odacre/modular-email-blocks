@@ -5,11 +5,12 @@
 //   /                              emails, recipes and the gallery
 //   /<flows|campaigns>/<email>     one email (add ?theme=luxury)
 //   /recipes, /recipes/<name>      campaign recipes with their preview data
+//   /brands/<brand>/              generated brand collection (npm run gallery:brand -- <brand>)
 //   /components, /components/<category>/<name>   every component, every variant, with a theme switcher
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const { ROOT, EMAIL_DIRS, EXAMPLE_DIRS, listBrands, listEmails } = require('./lib/paths');
+const { ROOT, DIST_DIR, EMAIL_DIRS, EXAMPLE_DIRS, listBrands, listEmails } = require('./lib/paths');
 const { loadBrand } = require('./lib/tokens');
 const { renderEmail, renderComponent, renderRecipe } = require('./lib/render');
 const { runChecks } = require('./lib/checks');
@@ -79,7 +80,12 @@ function withBanner(html, label, notes) {
 
 function homePage() {
   const emails = listEmails({ examples: true }).map((e) => `<li><a href="/${e}">${e}</a></li>`).join('');
+  const collectionsDir = path.join(ROOT, 'brands');
+  const collections = fs.existsSync(collectionsDir) ? fs.readdirSync(collectionsDir)
+    .filter((id) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id) && fs.existsSync(path.join(collectionsDir, id, 'catalog.js')))
+    .map((id) => `<li><a href="/brands/${id}/">${escapeHtml(id)} design collection</a></li>`).join('') : '';
   return page(`<h1>${escapeHtml(brand)}</h1>
+    ${collections ? `<div class="card"><h3>Brand collections</h3><ul>${collections}</ul></div>` : ''}
     <div class="card"><h3>Emails</h3><ul>${emails || '<li>No emails yet. Add a .mjml file to flows/ or campaigns/.</li>'}</ul></div>
     <div class="card"><h3>Design system</h3><ul><li><a href="/recipes">Campaign recipes</a></li><li><a href="/components">Component gallery</a></li></ul></div>`);
 }
@@ -148,6 +154,25 @@ const server = http.createServer(async (req, res) => {
   };
 
   try {
+    if (url.startsWith('/brands/')) {
+      const match = /^\/brands\/([a-z0-9]+(?:-[a-z0-9]+)*)(?:\/(.*))?$/.exec(url);
+      if (!match) return send(404, page('<p>No such collection.</p>'));
+      const [, collectionId, requested] = match;
+      if (requested === undefined) {
+        res.writeHead(302, { Location: `/brands/${collectionId}/` });
+        return res.end();
+      }
+      const artifact = requested || 'index.html';
+      // Only generated gallery artifacts are public, never source files or arbitrary paths.
+      if (!/^(?:index\.html|gallery\.(?:css|js)|manifest\.json|[a-z0-9-]+\/(?:blocks|emails)\/[a-z0-9-]+\.html)$/.test(artifact)) {
+        return send(404, page('<p>No such gallery file.</p>'));
+      }
+      const file = path.join(DIST_DIR, collectionId, 'gallery', artifact);
+      if (!fs.existsSync(file)) return send(404, page(`<h2>Gallery not built</h2><p>Run <code>npm run gallery:brand -- ${escapeHtml(collectionId)}</code>, then refresh this page.</p>`));
+      const mime = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.json': 'application/json' }[path.extname(file)];
+      res.writeHead(200, { 'Content-Type': `${mime}; charset=utf-8`, 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' });
+      return res.end(fs.readFileSync(file));
+    }
     if (url === '/') return send(200, homePage());
     if (url === '/recipes') return send(200, recipesIndex());
     if (url === '/components') return send(200, componentsIndex(loadRegistry({ fresh: true })));
