@@ -2,6 +2,30 @@
 
 This folder is the first brand-specific collection. It composes the existing library components instead of duplicating their MJML. Only public brand information belongs here; account credentials, subscriber data, and private client material do not.
 
+## Browse the expanded collection
+
+```powershell
+npm run gallery:brand -- sanecotec
+npm run preview
+```
+
+Open `http://localhost:3000/brands/sanecotec/` (or `dist/sanecotec/gallery/index.html` directly) for **48 reusable block presets and 12 assembled emails**, each in `minimal`, `editorial`, and `bold` styles. Search by purpose, filter categories, inspect desktop/phone layouts, download a draft HTML email, or copy composition data. The three style previews do not count as additional unique designs. Rebuild the gallery and refresh after editing collection files.
+
+| Group | Presets | Source |
+| --- | --- | --- |
+| Headers, footers, notice strip | 6 | `collection/frame.js` |
+| Editorial markers, navigation, follow-up and sign-off | 4 | `collection/frame.js` |
+| Heroes and introductions | 6 | `collection/heroes.js` |
+| Platform, sensors and consulting | 6 | `collection/platform.js` |
+| Six industry spotlights and two selectors | 8 | `collection/industries.js` |
+| Articles, reading lists and training | 6 | `collection/resources.js` |
+| Case-study links, preparation and FAQs | 6 | `collection/proof.js` |
+| Calls to action | 6 | `collection/actions.js` |
+
+Complete emails in `collection/emails.js` cover welcome, platform tour, sensors, consulting, pools, growers, buildings, water operations, two newsletter formats, training, and follow-up. Content is draft copy and uses public destinations. Research notes and source mapping are in [RESEARCH.md](RESEARCH.md); editing and the future-brand contract are in [the collection guide](../../docs/brand-collections.md).
+
+The original four include-based blocks below are retained as the first approved batch. The expanded catalog is a separate composition layer using the same core components. The normal build and original preview command still work.
+
 ## Start here
 
 From the repository root:
@@ -41,7 +65,7 @@ Inspected on 2026-09-24:
 - [Public PNG logo](https://sanecotec.com/assets/a8687bba-4dbe7910-7aed-475f-aa37-e70b41eabeea.950c83db82.png): visually inspected; used instead of the homepage's WebP variant. It is remotely hosted and could change or disappear when the website deploys.
 - [Platform](https://sanecotec.com/services/water-health-index-app) and [contact](https://sanecotec.com/about/contact): link destinations. Website modal buttons are replaced by normal page links for email.
 
-The dark navy surface and peach buttons adapt the website to email. The 600px canvas, typography sizes, spacing, radii, and shadows use the library's existing email defaults, not claimed official SanEcoTec guidelines. The logo is displayed at 200px. Font stacks include Arial/Helvetica fallbacks; no custom font loading was added, so installed-font availability determines the rendered face.
+The dark navy surface and peach buttons adapt the website to email. The 600px canvas, typography sizes, spacing, radii, and shadows use the library's existing email defaults, not claimed official SanEcoTec guidelines. The logo is displayed at 200px. Font stacks include Arial/Helvetica fallbacks. MJML emits web-font references for Roboto and Open Sans; actual client support and loading determine whether they or the fallback fonts appear.
 
 `tokens.draft.json` is complete structurally but deliberately retains `_placeholders` for success/warning/error roles, muted text, border, and the unused hero image. Status colors and the unused image retain reference values. Muted text temporarily uses the observed near-white for readability; the border uses observed primary blue. Their semantic roles remain unconfirmed. Do not remove these flags merely to make a production build pass.
 
@@ -61,3 +85,21 @@ Groups 2 and 3 depend on the foundation. These are logical commit boundaries wit
 ## Review before sending
 
 Review the copy and proportions, resolve the marked tokens, confirm durable image hosting, and test the resulting email in the intended clients and Klaviyo account. Browser review and MJML validation do not establish inbox compatibility. No SanEcoTec email has been sent or checked in a real inbox as part of this work.
+
+## Expanded collection commit groups
+
+The first batch above is already committed. Leave new work uncommitted until requested. Suggested increments for this expansion:
+
+1. Shared collection renderer and gallery tooling: `scripts/lib/brand-collection.js`, `scripts/brand-gallery.js`, `scripts/gallery/`, and the npm command.
+2. Brand catalog foundation, frame, and introductions: `collection/shared.js`, `collection/frame.js`, `collection/heroes.js`.
+3. Platform and industry presets: `collection/platform.js`, `collection/industries.js`.
+4. Resources, case-study/process presets, and actions: `collection/resources.js`, `collection/proof.js`, `collection/actions.js`.
+5. Catalog assembly and validation: `catalog.js`, `collection/emails.js`, collection tests, research notes, and documentation links.
+
+The final assembly group makes the gallery discoverable; earlier groups are supporting modules. No generated previews or local browser profiles should be committed.
+
+## Validation recorded for this expansion
+
+On 2026-09-24, all library tests passed, including the new collection tests; the normal build and original SanEcoTec draft preview also passed. All 180 generated previews compiled in strict MJML with the expected address and unsubscribe tags, image alt attributes, no leaked placeholder URLs, and sizes below 102 KB. The largest compiled email was 48,402 bytes.
+
+A local Chrome audit exercised search, category filtering, style selection, the preview dialog, and the phone-width toggle. All 180 previews were checked at a 375px viewport after fonts loaded, with no document-level horizontal overflow or failed images. Selected desktop and phone screenshots were visually reviewed. Browser artifacts are in `dist/sanecotec/gallery/_review/` on the working machine and are not versioned. These results do not establish Outlook, Gmail-app, dark-mode, or Klaviyo-send compatibility.

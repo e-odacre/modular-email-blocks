@@ -7,6 +7,7 @@ Start with [Getting started](getting-started.md), then [Architecture](architectu
 | Guide | What it covers |
 | --- | --- |
 | [Getting started](getting-started.md) | Installing, the commands, your first email, adding a brand |
+| [Brand collections](brand-collections.md) | SanEcoTec's block and email gallery, composing designs, and adding other brands |
 | [Architecture](architecture.md) | The layers, how an email is rendered, the file layout, nodes and slots |
 | [Design tokens](tokens.md) | Colors, typography, spacing, radius, shadow, width, dark mode, and how brand files are validated |
 | [Component metadata](component-metadata.md) | Every key of a `.meta.js` file: fields, settings, variants, responsive, validation, preview data |

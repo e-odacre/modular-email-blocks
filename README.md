@@ -47,6 +47,7 @@ Or it is a recipe: `[[ recipe('welcome', { hero: { ... } }) ]]`. See [examples/s
 | `npm run build:brand -- <brand>` | Build one brand |
 | `npm run build:themes` | Build every email in every theme, written to `dist/<brand>/themes/<theme>/` |
 | `npm run preview -- <brand> <email>` | Live preview with auto-reload: emails, `/recipes`, `/components` and a theme switcher (port 3000, or set `PORT`) |
+| `npm run gallery:brand -- sanecotec` | Build the SanEcoTec draft gallery: 48 block presets, 12 complete emails, three styles, desktop/phone previews |
 | `npm run remix -- recipe <name> [--theme t] [--variant component=variant]` | Render a recipe in another theme or with other variants. `npm run remix -- list` shows what exists |
 | `npm run new:component -- <category> <name>` | Scaffold a working component with metadata, preview data and tests coverage |
 | `npm run new:theme -- <name>` | Scaffold a theme as a complete copy of `minimal` |
@@ -96,6 +97,8 @@ MJML **silently drops** Klaviyo tags it finds between `mj-*` elements, with no e
 Tags inside `mj-text`, in attributes like `href`, and inside `mj-button` are fine. The build compares Klaviyo tags before and after MJML and fails if any went missing, and `tests/klaviyo-syntax.test.js` pins the behavior. Components that need a loop or a conditional (`commerce/cart-items`) wrap it for you.
 
 ## Brands and tokens
+
+Brand-specific design collections live separately in `brands/<brand>/`. Start with the [SanEcoTec collection](brands/sanecotec/README.md) and [collection guide](docs/brand-collections.md). Draft collections use the shared components without entering the normal production brand build.
 
 `tokens/placeholder.json` is the reference. Every other brand must define **every** key. There is no inheritance, so a default can never quietly fill a gap. Unknown keys are errors too, which catches typos. See [docs/tokens.md](docs/tokens.md).
 
